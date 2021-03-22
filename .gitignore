@@ -1,3 +1,8 @@
+# processed files
+data/gates
+data/preprocessed
+EnGen_train_iterations/engen_output
+EnGen_train_iterations/training_data/iter_*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
