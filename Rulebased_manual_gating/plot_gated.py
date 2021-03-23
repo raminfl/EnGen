@@ -35,46 +35,42 @@ def arcsinh_transformation(x):
     return np.arcsinh(a+b*x)+c
 
 
-def plot_gates(data_type, cell_type):
+def plot_gates(current_file_path, data_type, cell_type):
     #plot gates 
     eps = 0.0001 # handle zero in log scale
-    
 
     if cell_type['parent'] == None:
         if data_type == 'gt_Pre_all':
-            df = pd.read_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/input_data/gt_Pre_1hr_all_patients.csv')
+            df = pd.read_csv(os.path.join(current_file_path,'../data/gates/gt_Pre_1hr_all_patients.csv'))
             df = df[df['timepoint']=='Pre']
             df.drop(['timepoint', 'patient_id'], axis=1, inplace=True)
         elif data_type == 'gt_1hr_all':
-            df = pd.read_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/input_data/gt_Pre_1hr_all_patients.csv')
+            df = pd.read_csv(os.path.join(current_file_path,'../data/gates/gt_Pre_1hr_all_patients.csv'))
             df = df[df['timepoint']=='1hr']
             df.drop(['timepoint', 'patient_id'], axis=1, inplace=True)
         elif data_type == 'gen_train_all_models':
-            all_patients = pickle.load(open('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/preprocessed_data/all_patient_ids.pkl', 'rb'))['all_patient_ids']
-            patient_id = random.sample(all_patients, 1)[0]
-            df = pd.read_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/input_data/gen_train_all_models/gen_train_{}_all_models_inv_scaled_inv_arcsinh.csv'.format(patient_id))
-            print(df)
+            all_patients = pickle.load(open(os.path.join(current_file_path,'../EnGen_train_iterations/training_data/all_patient_ids.pkl'), 'rb'))['all_patient_ids']
+            patient_id = random.sample(all_patients, 1)[0] # pick on patient randomly for visualization
+            df = pd.read_csv(os.path.join(current_file_path,'../data/gates/gen_train/gen_train_{}_all_models_inv_scaled_inv_arcsinh.csv'.format(patient_id)))
+            # print(df)
         elif data_type == 'gen_test_all_models':
-            all_patients = pickle.load(open('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/preprocessed_data/all_patient_ids.pkl', 'rb'))['all_patient_ids']
-            patient_id = random.sample(all_patients, 1)[0]
-            df = pd.read_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/input_data/gen_test_all_models/gen_test_{}_all_models_inv_scaled_inv_arcsinh.csv'.format(patient_id))
-            print(df)
+            all_patients = pickle.load(open(os.path.join(current_file_path,'../EnGen_train_iterations/training_data/all_patient_ids.pkl'), 'rb'))['all_patient_ids']
+            patient_id = random.sample(all_patients, 1)[0] # pick on patient randomly for visualization
+            df = pd.read_csv(os.path.join(current_file_path,'../data/gates/gen_test/gen_test_{}_all_models_inv_scaled_inv_arcsinh.csv'.format(patient_id)))
+            # print(df)
         else:
             print('Data type not defined')
             sys.exit()
         df = df.sample(n=20000, random_state=42)
     else:
-        df = pd.read_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}.csv'.format(data_type,cell_type['parent']))
+        df = pd.read_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}.csv'.format(data_type,cell_type['parent'])))
     
 
     df.reset_index(drop=True, inplace=True)
     df[df<eps] = eps
-    print(df)
-    print(df.columns)
     
     fig, ax = plt.subplots(figsize=(7,7))
-    
-    # ################ PCA scatter plot #########################
+
 
     if cell_type['type'] == 'mononuclear_cells':
         df.plot(kind='scatter', x='139La_CD66', y='115In_CD45', ax=ax, c='black', s=5)
@@ -97,19 +93,16 @@ def plot_gates(data_type, cell_type):
         # ax.get_xaxis().set_major_formatter(ticker.ScalarFormatter())
         ax.set_title('Mononuclear Cells (CD45+CD66-)')
         inside = []
-        # plt.scatter(x=100, y=100, c='red', s=15)
         
         for idx, row in df.iterrows():
-            # print(idx)
-            # print(row)
-            # ax.scatter(x=row['139La_CD66'], y=row['115In_CD45'], c='black', s=5)
+            
             if not polygon1.contains(Point(row['139La_CD66'],row['115In_CD45'])):
                 print(row['139La_CD66'], row['115In_CD45'])
                 
             inside.append(polygon1.contains(Point(row['139La_CD66'],row['115In_CD45'])))
         df_all = df.copy()
         df_all['inside']= inside
-        # print(df1)  
+          
         df1 = df_all[df_all['inside']==True]
         df_junk = df_all[df_all['inside']==False]
         df1.reset_index(drop=True, inplace=True)
@@ -119,8 +112,8 @@ def plot_gates(data_type, cell_type):
         print('Junk freq = {}'.format(df_junk.shape[0]))
         style = dict(size=10, color='#d62828')
         ax.text(100,2000, 'Mononuclear Cells ({})'.format(df1.shape[0]), ha='center', **style)
-        os.makedirs('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/'.format(data_type), exist_ok=True)
-        df1.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}.csv'.format(data_type,cell_type['type']), index=False, header=True)
+        os.makedirs(os.path.join(current_file_path,'../data/gates/{}/'.format(data_type)), exist_ok=True)
+        df1.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}.csv'.format(data_type,cell_type['type'])), index=False, header=True)
 
     elif cell_type['type'] == 'Bcells_Tcells_CD19negCD3neg':
         df.plot(kind='scatter', x='170Er_CD3', y='142Nd_CD19', ax=ax, c='black', s=5)
@@ -164,10 +157,6 @@ def plot_gates(data_type, cell_type):
         inside1, inside2, inside3  = [], [], []
 
         for idx, row in df.iterrows():
-            # print(idx)
-            # print(row)
-            # if not polygon1.contains(Point(row['170Er_CD3'],row['142Nd_CD19'])):
-                # print(row['170Er_CD3'], row['142Nd_CD19'])
                 
             inside1.append(polygon1.contains(Point(row['170Er_CD3'],row['142Nd_CD19'])))
             inside2.append(polygon2.contains(Point(row['170Er_CD3'],row['142Nd_CD19'])))
@@ -198,9 +187,9 @@ def plot_gates(data_type, cell_type):
         ax.text(0.01, 0.001, 'CD19negCD3neg ({})'.format(df2.shape[0]), ha='center', **style)
         ax.text(10, 300, 'Bcells ({})'.format(df3.shape[0]), ha='center', **style)
 
-        df1.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__Tcells.csv'.format(data_type,cell_type['type']), index=False, header=True)
-        df2.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__CD19negCD3neg.csv'.format(data_type,cell_type['type']), index=False, header=True)
-        df3.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__Bcells.csv'.format(data_type,cell_type['type']), index=False, header=True)
+        df1.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__Tcells.csv'.format(data_type,cell_type['type'])), index=False, header=True)
+        df2.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__CD19negCD3neg.csv'.format(data_type,cell_type['type'])), index=False, header=True)
+        df3.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__Bcells.csv'.format(data_type,cell_type['type'])), index=False, header=True)
 
     elif cell_type['type'] == 'Bcells':
         df.plot(kind='scatter', x='171Yb_CD27', y='142Nd_CD19', ax=ax, c='black', s=5)
@@ -234,10 +223,6 @@ def plot_gates(data_type, cell_type):
         inside1, inside2  = [], []
 
         for idx, row in df.iterrows():
-            # print(idx)
-            # print(row)
-            # if not polygon1.contains(Point(row['170Er_CD3'],row['142Nd_CD19'])):
-                # print(row['170Er_CD3'], row['142Nd_CD19'])
                 
             inside1.append(polygon1.contains(Point(row['171Yb_CD27'],row['142Nd_CD19'])))
             inside2.append(polygon2.contains(Point(row['171Yb_CD27'],row['142Nd_CD19'])))
@@ -261,8 +246,8 @@ def plot_gates(data_type, cell_type):
         ax.text(0.001, 300, 'Bcells Naive CD27- ({})'.format(df1.shape[0]), ha='center', **style)
         ax.text(1000, 300, 'Bcells Mem CD27+ ({})'.format(df2.shape[0]), ha='center', **style)
 
-        df1.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__Naive.csv'.format(data_type,cell_type['type']), index=False, header=True)
-        df2.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__Mem.csv'.format(data_type,cell_type['type']), index=False, header=True)
+        df1.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__Naive.csv'.format(data_type,cell_type['type'])), index=False, header=True)
+        df2.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__Mem.csv'.format(data_type,cell_type['type'])), index=False, header=True)
 
     elif cell_type['type'] == 'Tcells':
         df.plot(kind='scatter', x='146Nd_CD8a', y='145Nd_CD4', ax=ax, c='black', s=5)
@@ -306,10 +291,6 @@ def plot_gates(data_type, cell_type):
         inside1, inside2, inside3  = [], [], []
 
         for idx, row in df.iterrows():
-            # print(idx)
-            # print(row)
-            # if not polygon1.contains(Point(row['170Er_CD3'],row['142Nd_CD19'])):
-                # print(row['170Er_CD3'], row['142Nd_CD19'])
                 
             inside1.append(polygon1.contains(Point(row['146Nd_CD8a'],row['145Nd_CD4'])))
             inside2.append(polygon2.contains(Point(row['146Nd_CD8a'],row['145Nd_CD4'])))
@@ -340,11 +321,9 @@ def plot_gates(data_type, cell_type):
         ax.text(0.01, 1000, 'CD4+ ({})'.format(df2.shape[0]), ha='center', **style)
         ax.text(500, 500, 'CD8+ Tcells ({})'.format(df3.shape[0]), ha='center', **style)
         
-        
-
-        df1.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__CD4negCD8neg.csv'.format(data_type,cell_type['type']), index=False, header=True)
-        df2.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__CD4pos.csv'.format(data_type,cell_type['type']), index=False, header=True)
-        df3.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__CD8pos.csv'.format(data_type,cell_type['type']), index=False, header=True)
+        df1.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__CD4negCD8neg.csv'.format(data_type,cell_type['type'])), index=False, header=True)
+        df2.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__CD4pos.csv'.format(data_type,cell_type['type'])), index=False, header=True)
+        df3.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__CD8pos.csv'.format(data_type,cell_type['type'])), index=False, header=True)
 
 
     elif cell_type['type'] == 'TCRgd':
@@ -369,10 +348,6 @@ def plot_gates(data_type, cell_type):
         inside1 = []
 
         for idx, row in df.iterrows():
-            # print(idx)
-            # print(row)
-            # if not polygon1.contains(Point(row['170Er_CD3'],row['142Nd_CD19'])):
-                # print(row['170Er_CD3'], row['142Nd_CD19'])
                 
             inside1.append(polygon1.contains(Point(row['152Sm_TCRgd'],row['170Er_CD3'])))
 
@@ -393,7 +368,7 @@ def plot_gates(data_type, cell_type):
         ax.text(500, 10, 'TCRgd Tcells ({})'.format(df1.shape[0]), ha='center', **style)       
         
 
-        df1.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}.csv'.format(data_type,cell_type['type']), index=False, header=True)
+        df1.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}.csv'.format(data_type,cell_type['type'])), index=False, header=True)
 
     elif cell_type['type'] == 'CD8pos':
         df.plot(kind='scatter', x='146Nd_CD8a', y='143Nd_CD45RA', ax=ax, c='black', s=5)
@@ -429,11 +404,7 @@ def plot_gates(data_type, cell_type):
         inside1, inside2  = [], []
 
         for idx, row in df.iterrows():
-            # print(idx)
-            # print(row)
-            # if not polygon1.contains(Point(row['170Er_CD3'],row['142Nd_CD19'])):
-                # print(row['170Er_CD3'], row['142Nd_CD19'])
-                
+
             inside1.append(polygon1.contains(Point(row['146Nd_CD8a'],row['143Nd_CD45RA'])))
             inside2.append(polygon2.contains(Point(row['146Nd_CD8a'],row['143Nd_CD45RA'])))
            
@@ -461,8 +432,8 @@ def plot_gates(data_type, cell_type):
         
         
 
-        df1.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__CD8posMem.csv'.format(data_type,cell_type['type']), index=False, header=True)
-        df2.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__CD8posNaive.csv'.format(data_type,cell_type['type']), index=False, header=True)
+        df1.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__CD8posMem.csv'.format(data_type,cell_type['type'])), index=False, header=True)
+        df2.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__CD8posNaive.csv'.format(data_type,cell_type['type'])), index=False, header=True)
 
     elif cell_type['type'] == 'CD4pos':
         df.plot(kind='scatter', x='145Nd_CD4', y='143Nd_CD45RA', ax=ax, c='black', s=5)
@@ -486,10 +457,6 @@ def plot_gates(data_type, cell_type):
         x2,y2 = polygon2.exterior.xy
         ax.plot(x2,y2, c='#d62828')
 
-      
-
-        
-
         ax.set_xscale('log')
         ax.set_yscale('log')
         ax.set_xlim((eps/2, 10*1000))
@@ -498,10 +465,6 @@ def plot_gates(data_type, cell_type):
         inside1, inside2  = [], []
 
         for idx, row in df.iterrows():
-            # print(idx)
-            # print(row)
-            # if not polygon1.contains(Point(row['170Er_CD3'],row['142Nd_CD19'])):
-                # print(row['170Er_CD3'], row['142Nd_CD19'])
                 
             inside1.append(polygon1.contains(Point(row['145Nd_CD4'],row['143Nd_CD45RA'])))
             inside2.append(polygon2.contains(Point(row['145Nd_CD4'],row['143Nd_CD45RA'])))
@@ -530,8 +493,8 @@ def plot_gates(data_type, cell_type):
         
         
 
-        df1.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__CD4posMem.csv'.format(data_type,cell_type['type']), index=False, header=True)
-        df2.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__CD4posNaive.csv'.format(data_type,cell_type['type']), index=False, header=True)
+        df1.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__CD4posMem.csv'.format(data_type,cell_type['type'])), index=False, header=True)
+        df2.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__CD4posNaive.csv'.format(data_type,cell_type['type'])), index=False, header=True)
 
     elif cell_type['type'] == 'NKcells':
         df.plot(kind='scatter', x='175Lu_CD14', y='141Pr_CD7', ax=ax, c='black', s=5)
@@ -564,10 +527,6 @@ def plot_gates(data_type, cell_type):
         inside1, inside2  = [], []
 
         for idx, row in df.iterrows():
-            # print(idx)
-            # print(row)
-            # if not polygon1.contains(Point(row['170Er_CD3'],row['142Nd_CD19'])):
-                # print(row['170Er_CD3'], row['142Nd_CD19'])
                 
             inside1.append(polygon1.contains(Point(row['175Lu_CD14'],row['141Pr_CD7'])))
             inside2.append(polygon2.contains(Point(row['175Lu_CD14'],row['141Pr_CD7'])))
@@ -596,26 +555,23 @@ def plot_gates(data_type, cell_type):
         
         
 
-        df1.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__MCcells.csv'.format(data_type,cell_type['type']), index=False, header=True)
-        df2.to_csv('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cells_type_{}__NKcellsCD7pos.csv'.format(data_type,cell_type['type']), index=False, header=True)
+        df1.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__MCcells.csv'.format(data_type,cell_type['type'])), index=False, header=True)
+        df2.to_csv(os.path.join(current_file_path,'../data/gates/{}/cells_type_{}__NKcellsCD7pos.csv'.format(data_type,cell_type['type'])), index=False, header=True)
 
 
     # plt.show()
-    plt.savefig('/home/raminf/DL/FCS_files_kehlet/iter_33pc_train/plots/gates/{}/cell_type_{}.pdf'.format(data_type, cell_type['type']), format='pdf', dpi=600)
+    plt.savefig(os.path.join(current_file_path,'../data/gates/{}/cell_type_{}.pdf'.format(data_type, cell_type['type'])), format='pdf', dpi=600)
 
         
 
 
 if __name__ == "__main__":
     
+    # plot gated populations for a randomly selected patient
+
+    current_file_path = os.path.abspath(os.path.dirname(__file__))
     
-    ##################
-    # data_type = 'gt_Pre_all'
-    # data_type = 'gt_1hr_all'
-    # data_type = 'gen_train_all_models'
-    data_type = 'gen_test_all_models'
-    ## data_type = 'gen_train_one_model' # one patient from one model
-    ## data_type = 'gen_test_one_model'
+    sample_types = ['gt_Pre_all', 'gt_1hr_all', 'gen_train_all_models', 'gen_test_all_models']
     ##################
     gates = []
     cell_type = {'type':'mononuclear_cells', 'parent':None}
@@ -634,8 +590,10 @@ if __name__ == "__main__":
     gates.append(cell_type)
     cell_type = {'type':'NKcells', 'parent':'Bcells_Tcells_CD19negCD3neg__CD19negCD3neg'}
     gates.append(cell_type)
-    for cell_type in gates:
-        plot_gates(data_type, cell_type)
+    for dt in sample_types:
+        print('sample type = {}'.format(dt))
+        for cell_type in gates:
+            plot_gates(current_file_path, dt, cell_type)
 
 
 

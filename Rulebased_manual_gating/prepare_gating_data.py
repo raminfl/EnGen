@@ -131,9 +131,9 @@ if __name__ == "__main__":
     
     current_file_path = os.path.abspath(os.path.dirname(__file__))
     timepoints = ['Pre', '1hr']
-    # all_gt(timepoints, current_file_path)
+    all_gt(timepoints, current_file_path)
 
-    # all_generated_train(current_file_path) # train_generated samples by all models for one patient
+    all_generated_train(current_file_path) # train_generated samples by all models for one patient
     all_generated_test(current_file_path) # test_generated samples by all models for one patient 
 
 
