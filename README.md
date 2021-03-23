@@ -5,20 +5,20 @@
 Link to paper: [link] \
 Codes and data made available for easy retraining of models, reproduction of results, and generation of plots presented by the authors in the main text and supplementary materials.
 
-# data cleaning and preprocessing
+## data cleaning and preprocessing
 ```
 python3 EnGen_iteration_preprocess.py
 ```
-# training EnGen models per iteration
+## training EnGen models per iteration
 ```
 python3 EnGen_model/train.py --iter_id #ITERATION_ID_ZERO_INDEXED
 ```
-# generate samples from saved models 
+## generate samples from saved models 
 ```
 python3 EnGen_generate/generate_train.py
 python3 EnGen_generate/generate_test.py
 ```
-# perform rulebased manaul gating on ground-truth and generated samples 
+## perform rulebased manaul gating on ground-truth and generated samples 
 ```
 python3 Rulebased_manual_gating/prepare_gating_data.py
 python3 Rulebased_manual_gating/plot_gated.py
