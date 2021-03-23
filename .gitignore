@@ -1,5 +1,6 @@
 # processed files
 data/gates
+data/raw_csv
 data/preprocessed
 EnGen_train_iterations/engen_output
 EnGen_train_iterations/training_data/iter_*
