@@ -3,43 +3,63 @@ import os
 import glob
 import pandas as pd 
 import numpy as np 
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
-from google.colab import auth
-from oauth2client.client import GoogleCredentials
+from clint.textui import progress
+import requests
+from apiclient import discovery
+import oauth2client
+from oauth2client import client
+from oauth2client import tools
+import progressbar
+import zipfile
+
+ 
+def download_files(destination):
+#modified https://github.com/nsadawi/Download-Large-File-From-Google-Drive-Using-Python
+
+    os.makedirs(destination, exist_ok=True)
+
+    URL = "https://docs.google.com/uc?export=download"
+    id = '1iTYoUroklbYqamr-oOZuNhz84BdBwvhu'
+    session = requests.Session()
+
+    response = session.get(URL, params = { 'id' : id }, stream = True)
+    token = get_confirm_token(response)
+
+    if token:
+        params = { 'id' : id, 'confirm' : token }
+        response = session.get(URL, params = params, stream = True)
+        
+
+    destination = destination+'raw_csv.zip'
+    save_response_content(response, destination) 
+    unzip(destination)   
+
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            return value
+
+    return None
+
+def save_response_content(response, destination):
+    CHUNK_SIZE = 32768
+    total_size = len(response.content)
+
+    with open(destination, "wb") as f:
+        print('downloading.. It may take a few minutes.')
+        pbar = progressbar.ProgressBar(maxval=total_size//CHUNK_SIZE)
+        for chunk in pbar(response.iter_content(CHUNK_SIZE)):
+            
+            if chunk: # filter out keep-alive new chunks
+                f.write(chunk)
 
 
+def unzip(path_to_zip_file):
 
-def download_files(local_download_path):
-
-    https://drive.google.com/drive/folders/1r2fE_dTzsrWg25RkyvHXSpV_CZOObLKY?usp=sharing
-
-    !pip install -U -q PyDrive
-
-    # 1. Authenticate and create the PyDrive client.
-    auth.authenticate_user()
-    gauth = GoogleAuth()
-    gauth.credentials = GoogleCredentials.get_application_default()
-    drive = GoogleDrive(gauth)
-
-    # choose a local (colab) directory to store the data.
-    try:
-        os.makedirs(local_download_path)
-    except: pass
-
-    # 2. Auto-iterate using the query syntax
-    #    https://developers.google.com/drive/v2/web/search-parameters
-    file_list = drive.ListFile(
-        {'q': "'1r2fE_dTzsrWg25RkyvHXSpV_CZOObLKY' in parents"}).GetList()  #use your own folder ID here
-
-    for f in file_list:
-        # 3. Create & download by id.
-        print('title: %s, id: %s' % (f['title'], f['id']))
-        fname = f['title']
-        print('downloading to {}'.format(fname))
-        f_ = drive.CreateFile({'id': f['id']})
-        f_.GetContentFile(fname)
-
+    directory_to_extract_to = path_to_zip_file.split('raw_csv.zip')[0]
+    with zipfile.ZipFile(path_to_zip_file, 'r') as zip_ref:
+        zip_ref.extractall(directory_to_extract_to)
+    os.remove(path_to_zip_file)
 
 def slice_markers(file_path, timepoints):
     # keep indeces related to functional and phenotypic markers
@@ -74,7 +94,7 @@ def slice_markers(file_path, timepoints):
             else:
                 df.to_csv('../data/preprocessed/{0:}/Func_Pheno_'.format(timepoint)+filename.split('/')[-1][:10]+'_A_{0:}.csv'.format(timepoint), header=True, index=False)
 
-               
+          
                 
               
 
