@@ -114,8 +114,7 @@ if __name__ == "__main__":
     n_iterations = 30
     all_patient_ids = pickle.load(open(os.path.join(current_file_path,'../EnGen_train_iterations/training_data/all_patient_ids.pkl'), 'rb'))['all_patient_ids']
     
-    # for iter_id in range(n_iterations):
-    for iter_id in [0]:
+    for iter_id in range(n_iterations):
 
         if iter_id < 10:
             iter_folder = 'iter_0{}'.format(iter_id)

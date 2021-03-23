@@ -105,7 +105,7 @@ if __name__ == "__main__":
     filepath = '../data/raw_csv/'
     timepoints = ['Pre', '1hr']
     download_files(filepath)
-    # slice_markers(filepath, timepoints)
+    slice_markers(filepath, timepoints)
 
 
 
