@@ -5,6 +5,8 @@ data/raw_csv_original
 data/preprocessed
 EnGen_train_iterations/engen_output
 EnGen_train_iterations/training_data/iter_*
+Rulebased_manual_gating/comparison_plots
+Rulebased_manual_gating/donut_plots
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
