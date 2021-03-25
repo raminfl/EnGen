@@ -201,7 +201,7 @@ def Donut_PCA_colored_by_celltype(current_file_path):
 if __name__ == "__main__":
     
     current_file_path = os.path.abspath(os.path.dirname(__file__))
-    # build_pca_scaler_all_gt_Pre_1hr(current_file_path)    
+    build_pca_scaler_all_gt_Pre_1hr(current_file_path)    
     Donut_PCA_colored_by_celltype(current_file_path)
 
 
