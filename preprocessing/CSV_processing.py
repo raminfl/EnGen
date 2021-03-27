@@ -3,7 +3,6 @@ import os
 import glob
 import pandas as pd 
 import numpy as np 
-from clint.textui import progress
 import requests
 from apiclient import discovery
 import oauth2client
