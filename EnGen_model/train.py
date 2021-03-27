@@ -124,7 +124,7 @@ if __name__ == '__main__':
     
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("--iter_id", type=int, default=0) #repeat for 30 iterations
+    parser.add_argument("--iter_id", type=int, required=True, help='iterate int from 0 to n_iterations-1') #repeat for 30 iterations
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--GPU_ID", type=int, default=0)
     parser.add_argument("--epochs", type=int, default=2500)
