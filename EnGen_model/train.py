@@ -151,7 +151,7 @@ if __name__ == '__main__':
     if args.ckpt is not None: # continue from the checkpoint
         assert os.path.exists(args.ckpt), "Saved model not found!"
     
-    text_filename = '../EnGen_train_iterations/engen_output/'+globals_vars.folder_name+'/commandline_args.txt'
+    text_filename = globals_vars.dir_path_main+'/commandline_args.txt'
     with open(text_filename, 'w') as f:
         f.write('\n'.join("{}={}".format(key,val) for (key,val) in vars(args).items()))
     train_engen(args, globals_vars)

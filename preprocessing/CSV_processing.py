@@ -13,9 +13,10 @@ import progressbar
 import zipfile
 
  
-def download_files(destination):
+def download_files(current_file_path):
 #modified https://github.com/nsadawi/Download-Large-File-From-Google-Drive-Using-Python
 
+    destination = os.path.join(current_file_path,'../data/raw_csv/')
     os.makedirs(destination, exist_ok=True)
 
     URL = "https://docs.google.com/uc?export=download"
@@ -61,12 +62,13 @@ def unzip(path_to_zip_file):
         zip_ref.extractall(directory_to_extract_to)
     os.remove(path_to_zip_file)
 
-def slice_markers(file_path, timepoints):
+def slice_markers(current_file_path, timepoints):
     # keep indeces related to functional and phenotypic markers
-
     ############# get the indeces for markers
-    Func_markers_file = '../data/markers/FuncInds.csv'
-    Pheno_markers_file = '../data/markers/PhenoInds.csv'
+    data_file_path = os.path.join(current_file_path,'../data/raw_csv/')
+    markers_file_path = os.path.join(current_file_path,'../data/markers/')
+    Func_markers_file = markers_file_path+'FuncInds.csv'
+    Pheno_markers_file = markers_file_path+'PhenoInds.csv'
     df_func_markers = pd.read_csv(Func_markers_file)
     func_markers = df_func_markers.iloc[:,[1]].values
     func_markers = func_markers.flatten()
@@ -81,18 +83,20 @@ def slice_markers(file_path, timepoints):
 
         print('timepoint = {}'.format(timepoint))
         ####################################
-        list_of_files =  glob.glob(file_path+'Kehlet_V*_*_A_{0:}_*_Mononuclear Cells.csv'.format(timepoint))
+        list_of_files =  glob.glob(data_file_path+'Kehlet_V*_*_A_{0:}_*_Mononuclear Cells.csv'.format(timepoint))
         
+        save_path = os.path.join(current_file_path,'../data/preprocessed/{0:}/'.format(timepoint))
+        os.makedirs(save_path, exist_ok=True)
         for filename in list_of_files:
     
             df = pd.read_csv(filename)
             df = df.iloc[:, all_indeces]
-            os.makedirs('../data/preprocessed/{0:}/'.format(timepoint), exist_ok=True)
+            
             if df.shape[0] >= 20000:
                 df = df.sample(n=20000, random_state=42)
-                df.to_csv('../data/preprocessed/{0:}/Func_Pheno_20k_'.format(timepoint)+filename.split('/')[-1][7:10]+'_A_{0:}.csv'.format(timepoint), header=True, index=False)
+                df.to_csv(save_path+'Func_Pheno_20k_'.format(timepoint)+filename.split('/')[-1][7:10]+'_A_{0:}.csv'.format(timepoint), header=True, index=False)
             else:
-                df.to_csv('../data/preprocessed/{0:}/Func_Pheno_'.format(timepoint)+filename.split('/')[-1][:10]+'_A_{0:}.csv'.format(timepoint), header=True, index=False)
+                df.to_csv(save_path+'Func_Pheno_'.format(timepoint)+filename.split('/')[-1][:10]+'_A_{0:}.csv'.format(timepoint), header=True, index=False)
 
           
                 
@@ -102,10 +106,10 @@ def slice_markers(file_path, timepoints):
 
 if __name__ == "__main__":
     
-    filepath = '../data/raw_csv/'
+    current_file_path = os.path.abspath(os.path.dirname(__file__))
     timepoints = ['Pre', '1hr']
-    download_files(filepath)
-    slice_markers(filepath, timepoints)
+    download_files(current_file_path)
+    slice_markers(current_file_path, timepoints)
 
 
 

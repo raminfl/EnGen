@@ -21,17 +21,19 @@ class GlobalsVars():
         self.source = 'Pre'
         self.target = '1hr'
         
-       
+        self.current_file_path = os.path.abspath(os.path.dirname(__file__))
         print('Iter = {}'.format(self.iter_id))
         if self.iter_id < 10:
-            self.filename =  '../EnGen_train_iterations/training_data/iter_0{0:}/Func_Pheno_45k_scaled_with_Pre_1hr_tps_source_{1:}_target_{2:}_matched.csv'.format(self.iter_id, self.source, self.target)
+            self.filename =  os.path.join(self.current_file_path,'../EnGen_train_iterations/training_data/iter_0{0:}/Func_Pheno_45k_scaled_with_Pre_1hr_tps_source_{1:}_target_{2:}_matched.csv'.format(self.iter_id, self.source, self.target))
             self.folder_name = 'iter_0{0:}'.format(self.iter_id)
         else:
-            self.filename =  '../EnGen_train_iterations/training_data/iter_{0:}/Func_Pheno_45k_scaled_with_Pre_1hr_tps_source_{1:}_target_{2:}_matched.csv'.format(self.iter_id, self.source, self.target)
+            self.filename =  os.path.join(self.current_file_path,'../EnGen_train_iterations/training_data/iter_{0:}/Func_Pheno_45k_scaled_with_Pre_1hr_tps_source_{1:}_target_{2:}_matched.csv'.format(self.iter_id, self.source, self.target))
             self.folder_name = 'iter_{0:}'.format(self.iter_id)
         
-        self.dir_path_csv = '../EnGen_train_iterations/engen_output/'+self.folder_name+'/csv/'
-        self.dir_path_ckpt = '../EnGen_train_iterations/engen_output/'+self.folder_name+'/saved_model/'
+        self.dir_path_main = os.path.join(self.current_file_path,'../EnGen_train_iterations/engen_output/'+self.folder_name)
+        self.dir_path_csv = self.dir_path_main+'/csv/'
+        self.dir_path_ckpt = self.dir_path_main+'/saved_model/'
+        
         os.makedirs(self.dir_path_csv, exist_ok=False)
         os.makedirs(self.dir_path_ckpt, exist_ok=False)
 
@@ -78,18 +80,3 @@ class cytofDataset(Dataset):
             sample = self.transform(sample)
         
         return sample
-
-
-
-
-
-# def save_generated(args, tracker_epoch, epoch, recons_samples, globals_vars):
-    
-#     columns = globals_vars.df_gt.columns.values
-#     df_recons = pd.DataFrame(data=recons_samples)
-#     df_recons['condition'] = conditions_recons_samples
-#     df_recons.columns = columns
-#     df_recons.to_csv(globals_vars.dir_path_csv+'epoch{}.csv'.format(epoch))
-#     df = pd.DataFrame.from_dict(tracker_epoch, orient='index')
-#     df = df.sample(n=1000, random_state=42)
-#     df.to_csv(globals_vars.dir_path_csv+'epoch{}-Dist.csv'.format(epoch))

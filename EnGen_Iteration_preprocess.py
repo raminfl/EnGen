@@ -159,10 +159,10 @@ def matching(iter_id, save_path, timepoints):
 
 if __name__ == "__main__":
     
-    
-    save_folder_path = './EnGen_train_iterations/training_data/'
+    current_file_path = os.path.abspath(os.path.dirname(__file__))
+    save_folder_path = os.path.join(current_file_path,'./EnGen_train_iterations/training_data/')
     os.makedirs(save_folder_path, exist_ok=True)
-    data_filepath = './data/preprocessed/'
+    data_filepath = os.path.join(current_file_path,'./data/preprocessed/')
     timepoints = ['Pre', '1hr'] 
 
     ################
