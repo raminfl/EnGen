@@ -116,7 +116,7 @@ if __name__ == "__main__":
             iter_folder = 'iter_0{}'.format(iter_id)
         else:
             iter_folder = 'iter_{}'.format(iter_id)
-        path = '../EnGenVAE_train_iterations/engen_vae_output_undercomplete/{}/'.format(iter_folder)
+        path = '../EnGenVAE_train_iterations/engen_vae_output/{}/'.format(iter_folder)
         
         p = pickle.load(open(os.path.join(current_file_path,'../EnGen_train_iterations/training_data/{}/scaler_kmeans_25.pkl'.format(iter_folder)), 'rb'))
        

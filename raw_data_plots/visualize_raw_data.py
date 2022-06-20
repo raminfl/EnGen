@@ -536,7 +536,7 @@ def gen_one_model_EnGenVAE_PCA(current_file_path, iter_id=0):
 
     for i in range(5): # biospecimens generated using the iter_id model
         print(i)
-        df_sample_gen = pd.read_csv(os.path.join(current_file_path,'../EnGenVAE_train_iterations/engen_vae_output_undercomplete/{0:}/generated/generated_{0:}_{1:}.csv'.format(iter_folder,i)))
+        df_sample_gen = pd.read_csv(os.path.join(current_file_path,'../EnGenVAE_train_iterations/engen_vae_output/{0:}/generated/generated_{0:}_{1:}.csv'.format(iter_folder,i)))
         df_sample_gen = df_sample_gen.applymap(inv_arcsinh_transformation)
         df_sample_gen = df_sample_gen.sample(n=20000, random_state=42)
         df_sample_gen[df_sample_gen < 0] = 0
@@ -623,7 +623,7 @@ def gen_one_model_EnGenVAE_UMAP(current_file_path, iter_id=0):
         iter_folder = 'iter_{}'.format(iter_id)
     for i in range(3): # biospecimens generated using the iter_id model
         print(i)
-        df_sample_gen = pd.read_csv(os.path.join(current_file_path,'../EnGenVAE_train_iterations/engen_vae_output_undercomplete/{0:}/generated/generated_{0:}_{1:}.csv'.format(iter_folder,i)))
+        df_sample_gen = pd.read_csv(os.path.join(current_file_path,'../EnGenVAE_train_iterations/engen_vae_output/{0:}/generated/generated_{0:}_{1:}.csv'.format(iter_folder,i)))
         df_sample_gen = df_sample_gen.applymap(inv_arcsinh_transformation)
         df_sample_gen = df_sample_gen.sample(n=20000, random_state=42)
         df_sample_gen[df_sample_gen < 0] = 0
