@@ -8,6 +8,7 @@ EnGen_train_iterations/training_data/iter_*
 Rulebased_manual_gating/comparison_plots
 Rulebased_manual_gating/donut_plots
 raw_data_plots/plots
+EnGenVAE_train_iterations/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

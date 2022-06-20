@@ -179,7 +179,7 @@ if __name__ == "__main__":
     ##############
 
     n_iterations = 30
-    make_iter(save_folder_path, data_filepath, timepoints, n_iterations) #slicing training patients for each iteration
+    # make_iter(save_folder_path, data_filepath, timepoints, n_iterations) #slicing training patients for each iteration
     
     for iter_id in range(n_iterations):
         compute_cost_matrix(save_folder_path, timepoints, iter_id)
